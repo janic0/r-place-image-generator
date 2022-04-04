@@ -1,4 +1,4 @@
-colors = [
+availableColors = [
     "#6D001A",
     "#BE0039",
     "#FF4500",
@@ -33,20 +33,22 @@ colors = [
     "#FFFFFF"
 ]
 
+generateColorsFromHex = lambda colors: [ImageColor.getcolor(color, "RGB") for color in colors]
+
+from unittest import result
 from PIL import Image, ImageColor
 from numpy import array
 
-def getClosestColor(color):
+def getClosestColor(color, colors):
         closestDiff = 99999999999
         closestColor = (0, 0, 0)
         for current in colors:
             diff = 0
-            e = ImageColor.getcolor(current, "RGB")
             for section in range(3):
-                diff += abs((e[section]) - color[section])
+                diff += abs((current[section]) - color[section])
             if diff < closestDiff:
                 closestDiff = diff
-                closestColor = e
+                closestColor = current
         return closestColor
 
 def main():
@@ -66,14 +68,15 @@ def main():
             continue
         image = original.resize((original.size[0] // entered, original.size[1] // entered))
 
-    new = Image.new("RGB", image.size)
+    resultImage = Image.new("RGB", image.size)
     pixels = array(image.getdata())
+    colors = generateColorsFromHex(availableColors)
     for x in range(len(pixels)):
-        color = getClosestColor(pixels[x])
+        color = getClosestColor(pixels[x], colors)
         print(str(100 / len(pixels) * x) + "%" )
-        new.putpixel((x % image.size[0], x // image.size[0]), color)
+        resultImage.putpixel((x % image.size[0], x // image.size[0]), color)
 
-    new.save(input("Save as (e.g. output.jpeg): "))
+    resultImage.save(input("Save as (e.g. output.jpeg): "))
 
 if __name__ == "__main__":
     main()
